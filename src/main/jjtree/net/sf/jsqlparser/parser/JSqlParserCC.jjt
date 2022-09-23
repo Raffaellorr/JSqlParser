@@ -207,6 +207,7 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_EMIT : "EMIT">
 |   <K_ENABLE : "ENABLE">
 |   <K_END:"END">
+|	<K_ENGINE:"ENGINE">
 |   <K_ESCAPE:"ESCAPE">
 |   <K_EXCEPT:"EXCEPT">
 |   <K_EXCLUDE : "EXCLUDE">
@@ -2980,6 +2981,7 @@ OrderByElement OrderByElement():
     }
 }
 
+
 JdbcParameter SimpleJdbcParameter() : {
     JdbcParameter retval;
 }
@@ -5176,6 +5178,7 @@ CreateTable CreateTable():
     ReferentialAction.Action action = null;
     String tableColumn = null;
     List<String> columns = new ArrayList<String>();
+    TableOption tableOption = null;
 }
 {
     <K_CREATE>
@@ -5330,7 +5333,8 @@ CreateTable CreateTable():
             )
           )
     ]
-    ( LOOKAHEAD(2, { getToken(1).kind != K_AS }) parameter=CreateParameter() { tableOptions.addAll(parameter); } )*
+    /* ( LOOKAHEAD(2, { getToken(1).kind != K_AS }) parameter=CreateParameter() { tableOptions.addAll(parameter); } )* */
+    ( LOOKAHEAD(2, { getToken(1).kind != K_AS }) tableOption = TableOption() { createTable.setTableOption(tableOption); })*
 
     // see https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_7002.htm#i2126725
     // table properties , all these are optional
@@ -5555,6 +5559,8 @@ List<String> CreateParameter():
             |
             tk=<K_PARTITION> { param.add(tk.image); }
             |
+            tk=<K_ORDER> { param.add(tk.image); }
+            |
             tk=<K_BY> { param.add(tk.image); }
             |
             tk=<K_IN> { param.add(tk.image); }
@@ -5586,6 +5592,48 @@ List<String> CreateParameter():
 	    tk="::" colDataType = ColDataType() { param.add(tk.image); param.add(colDataType.toString()); }
         )
     {return param;}
+}
+
+TableOption TableOption():
+{
+    TableOption tableOption = new TableOption();
+    Engine engine = null;
+    OrderByElement orderByElement = null;
+    PartitionByClause partitionByClause = null;
+    PrimaryKey primaryKey = null;
+    ExpressionList partitionByExpressionList = null;
+    ExpressionList primaryKeyExpressionList = null;
+}
+{
+    <K_ENGINE> "=" engine=Engine() { tableOption.setEngine(engine); }
+    (
+        <K_ORDER> <K_BY> orderByElement=OrderByElement() { tableOption.setOrderBy(orderByElement); } 
+        |
+        <K_PARTITION> <K_BY> partitionByExpressionList=ComplexExpressionList() 
+        { 
+            partitionByClause = new PartitionByClause();
+            partitionByClause.setPartitionExpressionList(partitionByExpressionList);
+            tableOption.setPartitionBy(partitionByClause); 
+        }
+        |
+        <K_PRIMARY> <K_KEY> primaryKeyExpressionList=ComplexExpressionList() 
+        {
+            primaryKey = new PrimaryKey();
+            primaryKey.setExpressionList(primaryKeyExpressionList);
+            tableOption.setPrimaryKey(primaryKey); 
+        } 
+    )*
+    { return tableOption; }
+}
+
+Engine Engine():
+{
+    Engine engine = new Engine();
+    Expression expression = null;
+}
+{
+    expression = Expression() { engine.setName(expression.toString()); }
+    { return engine; }
 }
 
 // row_movement_clause https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_7002.htm#i2204697

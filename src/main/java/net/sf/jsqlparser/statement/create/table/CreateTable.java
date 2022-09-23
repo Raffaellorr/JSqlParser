@@ -9,17 +9,17 @@
  */
 package net.sf.jsqlparser.statement.create.table;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class CreateTable implements Statement {
 
@@ -37,6 +37,7 @@ public class CreateTable implements Statement {
     private boolean orReplace = false;
 
     private RowMovement rowMovement;
+    private TableOption tableOption;
 
     @Override
     public void accept(StatementVisitor statementVisitor) {
@@ -160,6 +161,14 @@ public class CreateTable implements Statement {
         this.rowMovement = rowMovement;
     }
 
+    public TableOption getTableOption() {
+        return tableOption;
+    }
+
+    public void setTableOption(TableOption tableOption) {
+        this.tableOption = tableOption;
+    }
+
     @Override
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
     public String toString() {
@@ -188,6 +197,10 @@ public class CreateTable implements Statement {
         String options = PlainSelect.getStringList(tableOptionsStrings, false, false);
         if (options != null && options.length() > 0) {
             sql += " " + options;
+        }
+
+        if (tableOption != null) {
+            sql += " " + tableOption;
         }
 
         if (rowMovement != null) {

@@ -24,6 +24,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -904,5 +905,19 @@ public class CreateTableTest {
                 + "UNIQUE KEY id (id), "
                 + "INDEX name (name) USING BTREE"
                 + ") ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin");
+    }
+
+    @Test
+    public void testClickHouseCreateTableAs() throws JSQLParserException {
+        String statement = "CREATE TABLE A ENGINE = MergeTree() PARTITION BY (a, b) PRIMARY KEY C ORDER BY C AS SELECT * FROM B";
+        assertSqlCanBeParsedAndDeparsed(statement);
+        statement = "CREATE TABLE A ENGINE = MergeTree() PARTITION BY C ORDER BY C PRIMARY KEY C AS SELECT * FROM B";
+        CCJSqlParserUtil.parse(statement);
+        statement = "CREATE TABLE A ENGINE = MergeTree() PRIMARY KEY C ORDER BY C AS SELECT * FROM B";
+        assertSqlCanBeParsedAndDeparsed(statement);
+        statement = "CREATE TABLE A ENGINE = MergeTree() ORDER BY C AS SELECT * FROM B";
+        assertSqlCanBeParsedAndDeparsed(statement);
+        statement = "CREATE TABLE A ENGINE = MergeTree ORDER BY D AS SELECT * FROM B ORDER BY C";
+        assertSqlCanBeParsedAndDeparsed(statement);
     }
 }

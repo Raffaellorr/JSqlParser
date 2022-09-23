@@ -9,14 +9,14 @@
  */
 package net.sf.jsqlparser.util.deparser;
 
-import java.util.Iterator;
-
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.Index;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+
+import java.util.Iterator;
 
 public class CreateTableDeParser extends AbstractDeParser<CreateTable> {
 
@@ -93,6 +93,9 @@ public class CreateTableDeParser extends AbstractDeParser<CreateTable> {
         params = PlainSelect.getStringList(createTable.getTableOptionsStrings(), false, false);
         if (!"".equals(params)) {
             buffer.append(' ').append(params);
+        }
+        if (createTable.getTableOption() != null) {
+            buffer.append(" ").append(createTable.getTableOption());
         }
 
         if (createTable.getRowMovement() != null) {
