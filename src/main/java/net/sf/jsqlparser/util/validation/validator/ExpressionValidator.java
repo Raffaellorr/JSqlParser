@@ -604,4 +604,9 @@ public class ExpressionValidator extends AbstractValidator<Expression> implement
     public void visit(GeometryDistance geometryDistance) {
         visitOldOracleJoinBinaryExpression(geometryDistance, " <-> ");
     }
+
+    @Override
+    public void visit(LambdaExpression lambdaExpression) {
+
+    }
 }

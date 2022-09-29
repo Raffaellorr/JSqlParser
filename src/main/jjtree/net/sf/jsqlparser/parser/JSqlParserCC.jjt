@@ -3367,6 +3367,7 @@ Expression RegularCondition() #RegularCondition:
         | "-#" { result = new JsonOperator("-#"); }
         | "<->" { result = new GeometryDistance("<->"); }
         | "<#>" { result = new GeometryDistance("<#>"); }
+        | "->" { result = new LambdaExpression(); }
     )
 
     ( LOOKAHEAD(2) <K_PRIOR> rightExpression=ComparisonItem() { oraclePrior = EqualsTo.ORACLE_PRIOR_END; }
@@ -4014,7 +4015,9 @@ Expression PrimaryExpression() #PrimaryExpression:
 
         | LOOKAHEAD(2, {!interrupted}) retval=DateTimeLiteralExpression()
 
-        | LOOKAHEAD(2, {!interrupted}) <K_ARRAY_LITERAL> retval=ArrayConstructor(true)
+        | LOOKAHEAD(2, {!interrupted}) <K_ARRAY_LITERAL> retval=ArrayConstructor(false)
+
+        | LOOKAHEAD(2, {!interrupted}) retval=ArrayConstructor(false)
 
         | LOOKAHEAD(2, {!interrupted}) retval = NextValExpression()
 
@@ -4171,7 +4174,7 @@ DateTimeLiteralExpression DateTimeLiteralExpression() : {
     t=<S_CHAR_LITERAL> { expr.setValue(t.image); return expr; }
 }
 
-ArrayConstructor ArrayConstructor(final boolean arrayKeyword) : {
+ArrayConstructor ArrayConstructor(boolean arrayKeyword) : {
     ArrayList<Expression> expList = new ArrayList();
     ArrayConstructor array = new ArrayConstructor(expList, arrayKeyword);
     Expression exp = null;

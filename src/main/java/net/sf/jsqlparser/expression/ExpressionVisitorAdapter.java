@@ -649,6 +649,11 @@ public class ExpressionVisitorAdapter implements ExpressionVisitor, ItemsListVis
         visitBinaryExpression(geometryDistance);
     }
 
+    @Override
+    public void visit(LambdaExpression lambdaExpression) {
+        lambdaExpression.accept(this);
+    }
+
     public void visit(ColumnDefinition columnDefinition) {
        columnDefinition.accept(this);
      }

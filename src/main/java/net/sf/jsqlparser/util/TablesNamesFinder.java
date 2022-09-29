@@ -1056,4 +1056,9 @@ public class TablesNamesFinder implements SelectVisitor, FromItemVisitor, Expres
     public void visit(GeometryDistance geometryDistance) {
         visitBinaryExpression(geometryDistance);
     }
+
+    @Override
+    public void visit(LambdaExpression lambdaExpression) {
+        throw new UnsupportedOperationException("Finding tables from LambdaExpression is not supported");
+    }
 }

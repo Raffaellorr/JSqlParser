@@ -194,4 +194,6 @@ public interface ExpressionVisitor {
     void visit(IsDistinctExpression isDistinctExpression);
 
     void visit(GeometryDistance geometryDistance);
+
+    void visit(LambdaExpression lambdaExpression);
 }
